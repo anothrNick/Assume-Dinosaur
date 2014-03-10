@@ -104,99 +104,6 @@ function startGame() {
 	begin();
 }
 
-function dinosaur() {
-	this.x = 0;
-	this.y = 0;
-	this.z = 0;
-	
-	this.type = 'triceratops';
-	this.speed = 2;
-	
-	this.sprite = new Image();
-	this.sprite.src = "static/resources/triceratops.png";
-	this.sprite_y_start = [0,0,0,0,0,0,0,0];
-	this.sprite_widths = [78,78,78,78,78,78,78,78]; 
-	this.sprite_heights = [40,40,40,40,40,40,40,40]; 
-	this.sprite_frames = [8,8,8,8,8,8,8,8]; 
-	
-	this.sprite_x = 0;
-	this.sprite_y = 0;
-	this.sprite_width = 0;
-	this.sprite_height = 0;
-	this.sprite_frame = 0;
-	
-	this.key_up = 87;		//w
-	this.key_down = 83;	//s
-	this.key_left = 65;	//a
-	this.key_right = 68;	//d
-	
-	this.moving = false;
-	this.dir = 6; //0=N,1=NE,2=E,3=SE,4=S,5=SW,6=W,7=NW ---Not yet used, is the index of this.sprite_*
-	this.animation_counter = 0;
-	
-	this.updateSprite = (function() {
-		if(this.moving) this.animation_counter++;
-		if(this.animation_counter >= 4) {
-			this.animation_counter = 0;
-			this.sprite_frame++;
-			if(this.sprite_frame >= this.sprite_frames[6]) this.sprite_frame = 0;
-		}
-		this.sprite_x = this.sprite_frame * this.sprite_widths[6];
-		this.sprite_y = this.sprite_height * this.sprite_y_start[6];
-		this.sprite_width = this.sprite_widths[6];
-		this.sprite_height = this.sprite_heights[6];
-	});
-}
-
-//should this be its own file?
-function tileset() {
-	this.image = new Image();
-	this.image.src = 'static/resources/tileset.png';
-	
-	this.tile_size = 32;			// The size of a tile (32x32)
-	this.rows = 0;					// The number of tiles in a row of our background
-	this.cols = 0;					// The number of tiles in a column of our background
-	this.tiles_in_image = 16;	// The number of tiles per row in the tileset
-	
-	this.layers = [];
-	this.waterAnimCounter = 0;
-	this.waterDisplacement = 0;
-	this.waterDisplacementMod = 1;
-	
-	this.getHeight = (function() { return (this.layers[0] === undefined)? 0 : this.layers[0].length*this.tile_size; });
-	this.getWidth = (function() { return (this.layers[0] === undefined || this.layers[0][0] === undefined)? 0 : this.layers[0][0].length*this.tile_size; });
-	
-	this.updateTiles = (function() {
-		this.rows = (this.layers[0] === undefined)? 0 : this.layers[0].length*this.tile_size;
-		this.cols = (this.layers[0] === undefined || this.layers[0][0] === undefined)? 0 : this.layers[0][0].length*this.tile_size;
-	});
-	
-	//TODO: optimize this better, separate layer drawing (was a bad idea to initially combine it)
-	this.drawTiles = (function(context, startX, startY, scrWidth, scrHeight) {
-		for(var r=0; r<this.rows; r++) {
-			if((r*this.tile_size)-Math.floor(startY) < -1*this.tile_size || (r*this.tile_size)-Math.floor(startY) > scrHeight) continue;
-			for(var c=0; c<this.cols; c++) {
-				if((c*this.tile_size)-Math.floor(startX) < -1*this.tile_size || (c*this.tile_size)-Math.floor(startX) > scrWidth) continue;
-				for(var i=0; i<this.layers.length; i++) {
-					var layer = this.layers[i];
-					var tile = 0;
-					if(layer.length > r && layer[r].length > c) { tile = layer[r][c]; }
-					else if(i > 0) tile = -1;
-					if(tile >= 0) {
-						var tile_row = (tile / this.tiles_in_image) | 0; // Bitwise OR operation
-						var tile_col = (tile % this.tiles_in_image) | 0;
-						context.drawImage(this.image, (tile_col * this.tile_size), (tile_row * this.tile_size), this.tile_size, this.tile_size, (c * this.tile_size)-Math.floor(startX), (r * this.tile_size)-Math.floor(startY), this.tile_size, this.tile_size);
-						//animate water--currently disabled: if(tile == 16) context.drawImage(this.image, (tile_col * this.tile_size), (tile_row * this.tile_size), this.tile_size, this.tile_size, (c * this.tile_size)+this.waterDisplacement, (r * this.tile_size), this.tile_size, this.tile_size);
-					}
-				}
-			}
-		}
-		this.waterAnimCounter++;
-		if(this.waterAnimCounter > 8) { this.waterAnimCounter = 0; this.waterDisplacement += this.waterDisplacementMod; }
-		if(this.waterDisplacement > 3 || this.waterDisplacement < -3) this.waterDisplacementMod *= -1;
-	});
-}
-
 //handle keys
 document.addEventListener('keydown', function(evt) { 
 	switch(evt.keyCode) {
@@ -293,21 +200,21 @@ function draw() {
 	else if(me.y + H/2 >= ts.getHeight()) { meY = H - (ts.getHeight() - me.y); tsOffsetY = ts.getHeight()-H; }
 	else tsOffsetY = me.y - H/2;
 	
-	ts.drawTiles(ctx, tsOffsetX, tsOffsetY, W, H);
+	//TODO: loop through all layers and place dinos in each layer appropriately (by z-index)
+	ts.drawTiles(ctx, tsOffsetX, tsOffsetY, W, H, 0);
 	
 	ctx.beginPath();
 	me.updateSprite();
-	ctx.drawImage(me.sprite, me.sprite_x, me.sprite_y, me.sprite_width, me.sprite_height, meX, meY, me.sprite_width, me.sprite_height);
+	me.drawSprite(ctx, meX, meY);
 	
 	for(var i = 0; i < enemy.length; i++)
 	{
-		//TODO: animate enemy
-		//console.log("drawing enemy!!");
+		//TODO: animate enemy properly (give direction and moving|not moving)
 		var en = enemy[i];
 		if(en.moving == false) en.moving = true;
 		en.updateSprite();
-		//ctx.drawImage(en.sprite, en.x, en.y);
-		ctx.drawImage(en.sprite, en.sprite_x, en.sprite_y, en.sprite_width, en.sprite_height, en.x, en.y, en.sprite_width, en.sprite_height);
+		en.drawSprite(ctx, en.x+tsOffsetX, en.y+tsOffsetY);
+		//draw ID's above each other dino
 		ctx.fillStyle = "Blue";
 		ctx.font = "bold 12px sans-serif";
 		ctx.fillText("ID: " + en.id, en.x + en.sprite_width / 2, en.y - 15);
