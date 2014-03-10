@@ -113,7 +113,7 @@ function dinosaur() {
 	this.speed = 2;
 	
 	this.sprite = new Image();
-	this.sprite.src = "resources/triceratops.png";
+	this.sprite.src = "static/resources/triceratops.png";
 	this.sprite_y_start = [0,0,0,0,0,0,0,0];
 	this.sprite_widths = [78,78,78,78,78,78,78,78]; 
 	this.sprite_heights = [40,40,40,40,40,40,40,40]; 
@@ -151,7 +151,7 @@ function dinosaur() {
 //should this be its own file?
 function tileset() {
 	this.image = new Image();
-	this.image.src = 'resources/tileset.png';
+	this.image.src = 'static/resources/tileset.png';
 	
 	this.tile_size = 32;			// The size of a tile (32x32)
 	this.rows = 0;					// The number of tiles in a row of our background
@@ -304,7 +304,10 @@ function draw() {
 		//TODO: animate enemy
 		//console.log("drawing enemy!!");
 		var en = enemy[i];
-		ctx.drawImage(en.sprite, en.x, en.y);
+		if(en.moving == false) en.moving = true;
+		en.updateSprite();
+		//ctx.drawImage(en.sprite, en.x, en.y);
+		ctx.drawImage(en.sprite, en.sprite_x, en.sprite_y, en.sprite_width, en.sprite_height, en.x, en.y, en.sprite_width, en.sprite_height);
 	}
 }
 
@@ -338,7 +341,7 @@ function sendData(cmd, data) {
 
 var socketOpen = false;
 /*WEBSOCKETS*/
-var socket = new WebSocket('ws://testapp.radicaldinosaur.com/echo');
+var socket = new WebSocket('ws://radicaldinosaur.com/echo');
 
 socket.onopen = function() {
 	/*initialize client to server*/

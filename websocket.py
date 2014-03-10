@@ -31,7 +31,8 @@ clients = ClientManager()
 def echo(ws):
    while True:
       message = ws.receive()
-      if not message: return
+      if not message: 
+         return
       
       clients.addClient(ws)
       message = json.loads(message)
@@ -40,4 +41,4 @@ def echo(ws):
 
 @app.route('/')
 def index():
-  return render_template("index.html")
+   return render_template("index.html")

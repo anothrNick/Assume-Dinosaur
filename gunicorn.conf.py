@@ -18,7 +18,7 @@
 #       range.
 #
 
-bind = '127.0.0.1:8005'
+bind = '127.0.0.1:8001'
 backlog = 2048
 
 #
@@ -199,4 +199,4 @@ def pre_exec(server):
     server.log.info("Forked child, re-executing.")
 
 def when_ready(server):
-    server.log.info("Server is ready. Spwawning workers")
+    server.log.info("Server is ready. Spawning workers")
