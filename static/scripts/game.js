@@ -308,6 +308,10 @@ function draw() {
 		en.updateSprite();
 		//ctx.drawImage(en.sprite, en.x, en.y);
 		ctx.drawImage(en.sprite, en.sprite_x, en.sprite_y, en.sprite_width, en.sprite_height, en.x, en.y, en.sprite_width, en.sprite_height);
+		ctx.fillStyle = "Blue";
+		ctx.font = "bold 12px sans-serif";
+		ctx.fillText("ID: " + en.id, en.x + en.sprite_width / 2, en.y - 15);
+ 		ctx.fillText("("+en.x+", "+en.y+")", en.x + en.sprite_width / 2, en.y);
 	}
 }
 
