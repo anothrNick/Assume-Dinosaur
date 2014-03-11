@@ -97,6 +97,9 @@ var me = new dinosaur();
 //all other dinos
 var enemy = [];
 
+//the chat feature
+var messages = new chat(0);
+
 function startGame() {
 	/*make random*/
 	me.x = 200;
@@ -220,6 +223,8 @@ function draw() {
 		ctx.fillText("ID: " + en.id, en.x + en.sprite_width / 2, en.y - 15);
  		ctx.fillText("("+en.x+", "+en.y+")", en.x + en.sprite_width / 2, en.y);
 	}
+	
+	messages.displayMessages(ctx, W, H);
 }
 
 function render() {
@@ -290,9 +295,21 @@ socket.onmessage = function(msg) {
 	else if(message.cmd === "response"){
 		ourID = message.id;
 		console.log("Received ID: ( " + ourID +" )");
+		me.id = ourID;
+		messages.player_id = ourID;
+	}
+	else if(message.cmd === "chat") {
+		var data = message.data;
+		messages.receiveMessage(data.player, data.message);
 	}
 }
 
 socket.onerror = function(err) { console.log(err); }
 
 startGame();
+
+//this exists for the sole purpose of testing the chat
+function sendChatMessage() {
+	var message = document.getElementById('chatbox').value;
+	messages.sendMessage(message, socket);
+}
