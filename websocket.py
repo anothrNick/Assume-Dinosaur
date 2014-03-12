@@ -9,20 +9,22 @@ sockets = Sockets(app)
 class ClientManager():
    def __init__(self):
       self.clients = []
+      self.ids = 1000
 
    def broadcast(self, msg, ignore=[]):
       for c in self.clients:
          if c not in ignore:
-            try:
-               c.send(msg)
-            except Exception as e:
-               print e
-               self.clients.remove(c)
+               try:
+                  c.send(msg)
+               except Exception as e:
+                  print e
+                  self.clients.remove(c)
    
    def addClient(self, client):
       if client not in self.clients:
          self.clients.append(client)
-         response = "{\"cmd\":\"response\",\"data\":\"pong\", \"id\":\"%s\"}" % len(self.clients)
+         response = "{\"cmd\":\"response\",\"data\":\"pong\", \"id\":\"%s\"}" % self.ids
+         self.ids += 1
          client.send(response) 
 
 clients = ClientManager()
@@ -37,6 +39,10 @@ def echo(ws):
       clients.addClient(ws)
       message = json.loads(message)
       if message["cmd"] == "update":
+         clients.broadcast(json.dumps(message), ignore=[ws])
+      elif message["cmd"] == "chat":
+         clients.broadcast(json.dumps(message), ignore=[])
+      else:#remove client
          clients.broadcast(json.dumps(message), ignore=[ws])
 
 @app.route('/')

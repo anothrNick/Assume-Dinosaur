@@ -302,6 +302,15 @@ socket.onmessage = function(msg) {
 		var data = message.data;
 		messages.receiveMessage(data.player, data.message);
 	}
+	else if(message.cmd === "remove") {
+		console.log(message);
+		$(enemy).each(function(i){
+			if(this["id"] == message.data.player) enemy.splice(i,1);
+			var remMsg = "** removed player ( " + message.data.player + " ) - client disconnected";
+			console.log(remMsg);
+			messages.receiveMessage(0, remMsg);
+		});
+	}
 }
 
 socket.onerror = function(err) { console.log(err); }
@@ -312,4 +321,9 @@ startGame();
 function sendChatMessage() {
 	var message = document.getElementById('chatbox').value;
 	messages.sendMessage(message, socket);
+}
+
+window.onbeforeunload = function() {
+	console.log("leaving");
+	sendData("remove", {player: ourID})
 }
