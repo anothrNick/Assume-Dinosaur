@@ -216,7 +216,7 @@ function draw() {
 		var en = enemy[i];
 		if(en.moving == false) en.moving = true;
 		en.updateSprite();
-		en.drawSprite(ctx, en.x+tsOffsetX, en.y+tsOffsetY);
+		en.drawSprite(ctx, en.x-tsOffsetX, en.y-tsOffsetY);
 		//draw ID's above each other dino
 		ctx.fillStyle = "Blue";
 		ctx.font = "bold 12px sans-serif";
