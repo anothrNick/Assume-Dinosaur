@@ -7,9 +7,10 @@ function dinosaur() {
 	
 	this.type = 'triceratops'; //default type
 	this.speed = 2;
+	this.typing = false;
 	
 	this.sprite = new Image();
-	this.sprite.src = "static/resources/triceratops.png";
+	this.sprite.src = "resources/triceratops.png";
 	this.sprite_y_start = [0,0,0,0,0,0,0,0];
 	this.sprite_widths = [78,78,78,78,78,78,78,78]; 
 	this.sprite_heights = [40,40,40,40,40,40,40,40]; 
@@ -21,10 +22,13 @@ function dinosaur() {
 	this.sprite_height = 0;
 	this.sprite_frame = 0;
 	
-	this.key_up = 87;	//w
+	this.key_up = 87;		//w
 	this.key_down = 83;	//s
 	this.key_left = 65;	//a
-	this.key_right = 68;//d
+	this.key_right = 68;	//d
+	this.key_typing = 13;//enter
+	this.key_submit = 13;
+	this.key_escape = 27;//escape
 	
 	this.moving = false;
 	this.dir = 6; //0=N,1=NE,2=E,3=SE,4=S,5=SW,6=W,7=NW

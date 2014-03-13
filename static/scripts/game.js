@@ -17,6 +17,8 @@ var key_left = false;
 var key_right = false;
 var keyOrder = [];
 
+var current_message = "";
+
 var bgm = document.getElementById('overworld');
 bgm.play();
 var is_playing = true;
@@ -115,6 +117,7 @@ function startGame() {
 
 //handle keys
 document.addEventListener('keydown', function(evt) { 
+	if(me.typing) return; //no other keys happen when the player is typing
 	switch(evt.keyCode) {
 		case me.key_up:
 			key_up = true; 
@@ -147,6 +150,7 @@ document.addEventListener('keydown', function(evt) {
 });
 
 document.addEventListener('keyup', function(evt) { 
+	if(me.typing) return; //no other keys happen when the player is typing
 	var key = evt.keyCode;
 	if(keyOrder.indexOf(key) > -1) {
 		keyOrder.splice(keyOrder.indexOf(key), 1);
@@ -162,6 +166,32 @@ document.addEventListener('keyup', function(evt) {
 			key_right = false; break;
 		default:
 			break;
+	}
+});
+
+//this is only for the chat, we need keypress to get the full keyCode (e.g. 65 vs 97)
+document.addEventListener('keypress', function(evt) {
+	var key = evt.keyCode;
+	if(key == me.key_typing && !me.typing) { me.typing = true; return; }
+	if(me.typing) {
+		if(key == me.key_submit) {
+			if(current_message != "") messages.sendMessage(current_message, socket);
+			current_message = "";
+			me.typing = false;
+			return;
+		} else if(key == me.key_escape) {
+			me.typing = false;
+			current_message = "";
+			return;
+		}
+		evt = evt || window.event;
+
+    	// Ensure we only handle printable keys
+    	var charCode = typeof evt.which == "number" ? evt.which : evt.keyCode;
+
+    	if (charCode) {
+        current_message += String.fromCharCode(charCode);
+    	}
 	}
 });
 
@@ -227,10 +257,15 @@ function draw() {
 		ctx.fillStyle = "Blue";
 		ctx.font = "bold 12px sans-serif";
 		ctx.fillText("ID: " + en.id, en.x + en.sprite_width / 2, en.y - 15);
- 		ctx.fillText("("+en.x+", "+en.y+")", en.x + en.sprite_width / 2, en.y);
+		if(en.typing) ctx.fillText("-- typing --", en.x + en.sprite_width / 2, en.y);
+ 		else ctx.fillText("("+en.x+", "+en.y+")", en.x + en.sprite_width / 2, en.y);
 	}
 	
-	messages.displayMessages(ctx, W, H);
+	if(!me.typing) messages.displayMessages(ctx, W, H);
+	else {
+		messages.drawFullHistory(ctx, W, H);
+		messages.drawCurrentMessage(ctx, current_message, W, H);
+	}
 }
 
 function render() {
@@ -241,8 +276,6 @@ function render() {
 		canvas.style.height = H;
 		ctx.canvas.width = W;
 		ctx.canvas.height = H;
-		ts.rows = H/32+1;
-		ts.cols = W/32+1;
 	}
 	
 	move();
@@ -252,7 +285,7 @@ function render() {
 
 function update() {
 	//console.log(socketOpen);
-	if(socketOpen == true) sendData("update", {x:me.x,y:me.y,id:ourID});
+	if(socketOpen == true) sendData("update", {x:me.x,y:me.y,id:ourID,typing:me.typing});
 }
 
 function begin() { window.setInterval(render, 33); }
@@ -284,11 +317,12 @@ socket.onmessage = function(msg) {
 		{
 			if(enemy[i].id == eid)
 			{
+				bFound = true;
 				enemy[i].x = data.x;
 				enemy[i].y = data.y;
-				bFound = true;
+				enemy[i].typing = data.typing;
 			}
-                        if(enemy[i].id == undefined) enemy.splice(i,1);
+			if(enemy[i].id == undefined) enemy.splice(i,1);
 		}
 		if(bFound == false){
 			var en = new dinosaur();
@@ -322,12 +356,6 @@ socket.onmessage = function(msg) {
 socket.onerror = function(err) { console.log(err); }
 
 startGame();
-
-//this exists for the sole purpose of testing the chat
-function sendChatMessage() {
-	var message = document.getElementById('chatbox').value;
-	messages.sendMessage(message, socket);
-}
 
 window.onbeforeunload = function() {
 	console.log("leaving");
