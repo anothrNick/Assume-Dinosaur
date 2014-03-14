@@ -2,19 +2,12 @@
 	<head>
 		<title>Assume Dinosaur</title>
 		<script type="text/javascript" src="{{ url_for('static', filename='scripts/jquery-1.8.3.js') }}"></script>
+		
+		<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}">
+        	<script type="text/javascript" src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
 	</head>
 	<body style="margin: 0px; padding: 0px; scrolling: none;">
-		<canvas id="canvas" width="500" height="500"></canvas>
-		<audio loop id="overworld">
-			<source src="{{ url_for('static', filename='resources/overworld.ogg') }}" type="audio/ogg">
-			<source src="{{ url_for('static', filename='resources/overworld.mp3') }}" type="audio/mpeg">
-			<source src="{{ url_for('static', filename='resources/overworld.wav') }}" type="audio/wav">
-		</audio>
-		<script type="text/javascript" src="{{ url_for('static', filename='scripts/objects.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='scripts/tileset.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='scripts/dinosaur.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='scripts/chat.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='scripts/game.js') }}"></script>
-		<div id="testchat" style="position:absolute;bottom:0"><input type="text" id="chatbox" /><input type="button" value="Send Message" onclick="sendChatMessage();" /></div>
+		{% block container %}
+		{% endblock %}		
 	</body>
 </html>

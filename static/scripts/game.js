@@ -334,9 +334,11 @@ socket.onmessage = function(msg) {
 	}
 	else if(message.cmd === "response"){
 		ourID = message.id;
+		console.log(message);
 		console.log("Received ID: ( " + ourID +" )");
 		me.id = ourID;
 		messages.player_id = ourID;
+		messages.username = message.username;
 	}
 	else if(message.cmd === "chat") {
 		var data = message.data;

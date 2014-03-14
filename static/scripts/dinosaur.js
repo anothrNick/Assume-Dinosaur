@@ -10,7 +10,7 @@ function dinosaur() {
 	this.typing = false;
 	
 	this.sprite = new Image();
-	this.sprite.src = "resources/triceratops.png";
+	this.sprite.src = "static/resources/triceratops.png";
 	this.sprite_y_start = [0,0,0,0,0,0,0,0];
 	this.sprite_widths = [78,78,78,78,78,78,78,78]; 
 	this.sprite_heights = [40,40,40,40,40,40,40,40]; 

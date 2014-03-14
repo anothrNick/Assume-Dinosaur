@@ -2,9 +2,10 @@ function chat(id) {
 	this.messages = [];
 	this.history = 12;
 	this.player_id = (id === undefined)? 0 : id;
-	
+	this.username = "";	
+
 	this.sendMessage = (function(msg, websocket) {
-		var message = { player : this.player_id, message : msg };
+		var message = { player : this.username, message : msg };
   		websocket.send(JSON.stringify({cmd: "chat", data: message}));
 	});
 	
@@ -28,7 +29,7 @@ function chat(id) {
 			var pid = this.messages[i].player;
 			context.fillStyle = "rgba(255,255,255,"+this.messages[i].opacity+")";
 			context.font = "bold 12px sans-serif";
-			context.fillText((pid == 0 ? "" : "player-" + pid +": ")+this.messages[i].message, 15, scrHeight-(i*20)-60);
+			context.fillText((pid == 0 ? "" : this.username + "-" + pid +": ")+this.messages[i].message, 15, scrHeight-(i*20)-60);
 			if(this.messages[i].opacity > 0.005) this.messages[i].opacity -= 0.005;
 			else this.messages[i].opacity = 0;
 		}

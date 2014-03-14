@@ -1,0 +1,17 @@
+{% extends 'index.html' %}
+{% block container %}
+
+		<canvas id="canvas" width="500" height="500"></canvas>
+		<audio loop id="overworld">
+			<source src="{{ url_for('static', filename='resources/overworld.ogg') }}" type="audio/ogg">
+			<source src="{{ url_for('static', filename='resources/overworld.mp3') }}" type="audio/mpeg">
+			<source src="{{ url_for('static', filename='resources/overworld.wav') }}" type="audio/wav">
+		</audio>
+		<script type="text/javascript" src="{{ url_for('static', filename='scripts/objects.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='scripts/tileset.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='scripts/dinosaur.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='scripts/chat.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='scripts/game.js') }}"></script>
+		<!--<div id="testchat" style="position:absolute;bottom:0"><input type="text" id="chatbox" /><input type="button" value="Send Message" onclick="sendChatMessage();" /></div>
+		-->
+{% endblock %}
