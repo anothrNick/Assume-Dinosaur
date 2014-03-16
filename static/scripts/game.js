@@ -135,6 +135,12 @@ document.addEventListener('keydown', function(evt) {
 			key_right = true;
 			if(keyOrder.indexOf(me.key_right) == -1) keyOrder.push(me.key_right); 
 			break;
+		case me.key_strafe:
+			me.strafing = true;
+			break;
+		case me.key_attack:
+			me.attack();
+			break;
 		case 77:
 			if(is_playing) bgm.pause();
 			else bgm.play();
@@ -164,6 +170,8 @@ document.addEventListener('keyup', function(evt) {
 			key_left = false; break;
 		case me.key_right:
 			key_right = false; break;
+		case me.key_strafe:
+			me.strafing = false; break;
 		default:
 			break;
 	}
@@ -218,11 +226,23 @@ function move() {
 		else if(left) { newx-=me.speed; }
 		else if(right) { newx+=me.speed; }
 		if(!things.isSolid(newx,newy,me.z)) { //very rudimentary collision detection, to be improved
-			me.x = newx;
-			me.y = newy;
+			me.move(newx, newy);
 		} 
 		else if(newx != me.x && !things.isSolid(newx,me.y,me.z)) me.x = newx;
 		else if(newy != me.y && !things.isSolid(me.x,newy,me.z)) me.y = newy;
+	}
+}
+
+function checkActions() {
+	for(var i = 0; i < enemy.length; i++) {
+		var en = enemy[i];
+		if(en.y < me.y+me.sprite_height && en.y > me.y) {
+			if(en.x < me.x+me.sprite_width && en.x > me.x) {
+				if(en.isAttacking()) {
+					me.is_hit = true;
+				}
+			}
+		}
 	}
 }
 
@@ -248,9 +268,7 @@ function draw() {
 	
 	for(var i = 0; i < enemy.length; i++)
 	{
-		//TODO: animate enemy properly (give direction and moving|not moving)
 		var en = enemy[i];
-		if(en.moving == false) en.moving = true;
 		en.updateSprite();
 		en.drawSprite(ctx, en.x-tsOffsetX, en.y-tsOffsetY);
 		//draw ID's above each other dino
@@ -279,13 +297,14 @@ function render() {
 	}
 	
 	move();
+	checkActions();
 	draw();
 	update();
 }
 
 function update() {
 	//console.log(socketOpen);
-	if(socketOpen == true) sendData("update", {x:me.x,y:me.y,id:ourID,typing:me.typing});
+	if(socketOpen == true) sendData("update", {x:me.x,y:me.y,id:ourID,typing:me.typing,strafing:me.strafing,attacking:me.isAttacking()});
 }
 
 function begin() { window.setInterval(render, 33); }
@@ -309,8 +328,6 @@ socket.onmessage = function(msg) {
 	message = $.parseJSON(msg.data);
 	if(message.cmd == "update") {
 		var data = message.data;
-		//data = [{x:<value>, y:<value>}]
-                //console.log(message);
 		var bFound = false;
 		var eid = data.id;
 		for(var i = 0; i < enemy.length; i++)
@@ -318,9 +335,11 @@ socket.onmessage = function(msg) {
 			if(enemy[i].id == eid)
 			{
 				bFound = true;
-				enemy[i].x = data.x;
-				enemy[i].y = data.y;
 				enemy[i].typing = data.typing;
+				enemy[i].strafing = data.strafing;
+				if(enemy[i].x != data.x || enemy[i].y != data.y) enemy[i].moving = true;
+				enemy[i].move(data.x, data.y);
+				if(data.attacking) { enemy[i].attacking = true; enemy[i].attack_counter = 0; }
 			}
 			if(enemy[i].id == undefined) enemy.splice(i,1);
 		}
