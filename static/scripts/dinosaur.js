@@ -15,7 +15,7 @@ function dinosaur() {
 	this.is_hit = false;
 	
 	this.sprite = new Image();
-	this.sprite.src = "static/resources/triceratops.png";
+	this.sprite.src = "resources/triceratops.png";
 	this.sprite_y_start = [0,40,40,40,0,0,0,0];
 	this.sprite_widths = [78,78,78,78,78,78,78,78]; 
 	this.sprite_heights = [40,40,40,40,40,40,40,40]; 
@@ -38,11 +38,13 @@ function dinosaur() {
 	this.key_escape = 27;//escape
 	
 	this.moving = false;
+	this.immoble = false; //for temporarily disabling movement
 	this.dir = 6; //0=N,1=NE,2=E,3=SE,4=S,5=SW,6=W,7=NW
 	this.animation_counter = 0;
 	this.attack_counter = 0;
 	
 	this.move = (function(newX, newY) {
+		if(this.immoble) { this.moving = false; return; }
 		newX = Math.floor(newX);
 		newY = Math.floor(newY);
 		if(!this.strafing) {
