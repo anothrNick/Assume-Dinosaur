@@ -57,10 +57,12 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        use = Users.select().where(request.form['username'] == Users.username,
-                                request.form['password'] == Users.password).get()
+        useCnt = Users.select().where(request.form['username'] == Users.username,
+                                request.form['password'] == Users.password).count()
 
-        if use:
+        if useCnt:
+            use = Users.select().where(request.form['username'] == Users.username,
+                                request.form['password'] == Users.password).count()
             session['username'] = use.username
             session['userid'] = use.id
 
