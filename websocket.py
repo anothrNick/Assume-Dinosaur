@@ -62,7 +62,7 @@ def login():
 
         if useCnt:
             use = Users.select().where(request.form['username'] == Users.username,
-                                request.form['password'] == Users.password).count()
+                                request.form['password'] == Users.password).get()
             session['username'] = use.username
             session['userid'] = use.id
 
