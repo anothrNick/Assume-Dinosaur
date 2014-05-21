@@ -57,18 +57,16 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        uname = request.form['username']
-        pword = request.form['password']
-
-        use = Users.select().where(uname == Users.username, pword == Users.password).get()
+        use = Users.select().where(request.form['username'] == Users.username,
+                                request.form['password'] == Users.password).get()
 
         if use:
-            session['username'] = uname
+            session['username'] = use.username
             session['userid'] = use.id
 
             return redirect(url_for('index'))
-        #else:
-         #   flash("username or password is incorrect")
+        else:
+            flash("username or password is incorrect")
 
     return render_template('login.html')
 
