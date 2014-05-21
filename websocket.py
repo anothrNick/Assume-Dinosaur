@@ -83,7 +83,7 @@ def register():
             session['userid'] = user.id
 
             return redirect(url_for('index'))
-        
+
     return render_template('register.html')
 
 #auto open close db connections
