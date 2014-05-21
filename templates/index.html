@@ -7,6 +7,17 @@
 
         <script type="text/javascript" src="{{ url_for('static', filename='scripts/jquery-1.8.3.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+
+        <style>
+            .itr{
+                border-bottom-right-radius: 0;
+                border-bottom-left-radius: 0;
+            }
+            .ibr{
+                border-top-right-radius: 0;
+                border-top-left-radius: 0;
+            }
+        </style>
 	</head>
 	<body style="margin: 0px; padding: 0px; scrolling: none;">
 		{% block container %}
