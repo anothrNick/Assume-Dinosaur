@@ -1,5 +1,6 @@
-from flask import Flask, render_template, session, redirect, url_for, request
+from flask import Flask, render_template, session, redirect, url_for, request, g, flash
 from flask_sockets import Sockets
+from model import *
 import json
 
 app = Flask(__name__)
@@ -8,57 +9,83 @@ app.config["DEBUG"] = True
 sockets = Sockets(app)
 
 class ClientManager():
-   def __init__(self):
-      self.clients = []
-      self.ids = 1000
+    def __init__(self):
+        self.clients = []
+        self.ids = 1000
 
-   def broadcast(self, msg, ignore=[]):
-      for c in self.clients:
-         if c not in ignore:
-               try:
-                  c.send(msg)
-               except Exception as e:
-                  print e
-                  self.clients.remove(c)
+    def broadcast(self, msg, ignore=[]):
+        for c in self.clients:
+            if c not in ignore:
+                try:
+                    c.send(msg)
+                except Exception as e:
+                    self.clients.remove(c)
    
-   def addClient(self, client):
-      if client not in self.clients:
-         self.clients.append(client)
-         response = "{\"cmd\":\"response\",\"data\":\"pong\", \"id\":\"%s\", \"username\":\"%s\"}" % (self.ids, 'username')
-         self.ids += 1
-         client.send(response) 
+    def addClient(self, client):
+        if client not in self.clients:
+            self.clients.append(client)
+            response = "{\"cmd\":\"response\",\"data\":\"pong\", \"id\":\"%s\", \"username\":\"%s\"}" % (self.ids, 'username')
+            self.ids += 1
+            client.send(response)
 
 clients = ClientManager()
 
 @sockets.route("/echo")
 def echo(ws):
-   while True:
-      message = ws.receive()
-      if not message: 
-         return
+    while True:
+        message = ws.receive()
+        if not message:
+            return
       
-      clients.addClient(ws)
-      message = json.loads(message)
-      if message["cmd"] == "update":
-         clients.broadcast(json.dumps(message), ignore=[ws])
-      elif message["cmd"] == "chat":
-         clients.broadcast(json.dumps(message), ignore=[])
-      else:#remove client
-         clients.broadcast(json.dumps(message), ignore=[ws])
-    #     session.pop("username", None)
+        clients.addClient(ws)
+        message = json.loads(message)
+        if message["cmd"] == "update":
+            clients.broadcast(json.dumps(message), ignore=[ws])
+        elif message["cmd"] == "chat":
+            clients.broadcast(json.dumps(message), ignore=[])
+        else:#remove client
+            clients.broadcast(json.dumps(message), ignore=[ws])
+        #     session.pop("username", None)
 
 @app.route('/')
 def index():
-   if 'username' in session:
-      return render_template("ad.html")
-   else:
-      return redirect(url_for('login'))
+    if 'username' in session:
+        return render_template("ad.html")
+    else:
+        return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-   if request.method == 'POST':
-      session['username'] = request.form['username']
-      return redirect(url_for('index'))
-   else:
-      return render_template('login.html')
+    if request.method == 'POST':
+        uname = request.form['username']
+        pword = request.form['password']
+
+        use = Users.select().wher(uname == Users.username, pword == Users.password)
+
+        if use:
+            session['username'] = uname
+            session['userid'] = use.id
+
+            return redirect(url_for('index'))
+        flash("username or password is incorrect")
+
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        pass
+
+    return render_template('register.html')
+
+#auto open close db connections
+@app.before_request
+def before_request():
+    g.db = db
+    g.db.connect()
+
+@app.after_request
+def after_request(response):
+    g.db.close()
+    return response
 
