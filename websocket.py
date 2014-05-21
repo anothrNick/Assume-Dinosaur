@@ -21,10 +21,10 @@ class ClientManager():
                 except Exception as e:
                     self.clients.remove(c)
    
-    def addClient(self, client, uname):
+    def addClient(self, client):
         if client not in self.clients:
             self.clients.append(client)
-            response = "{\"cmd\":\"response\",\"data\":\"pong\", \"id\":\"%s\", \"username\":\"%s\"}" % (self.ids, uname)
+            response = "{\"cmd\":\"response\",\"data\":\"pong\", \"id\":\"%s\", \"username\":\"%s\"}" % (self.ids, 'test')
             self.ids += 1
             client.send(response)
 
@@ -37,7 +37,7 @@ def echo(ws):
         if not message:
             return
       
-        clients.addClient(ws, session['username'])
+        clients.addClient(ws)
         message = json.loads(message)
         if message["cmd"] == "update":
             clients.broadcast(json.dumps(message), ignore=[ws])
