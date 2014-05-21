@@ -60,7 +60,7 @@ def login():
         uname = request.form['username']
         pword = request.form['password']
 
-        use = Users.select().where(uname == Users.username, pword == Users.password)
+        use = Users.select().where(uname == Users.username, pword == Users.password).get()
 
         if use:
             session['username'] = uname
