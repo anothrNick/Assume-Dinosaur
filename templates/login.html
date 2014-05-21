@@ -2,6 +2,13 @@
 {% block container %}
 
 	<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 mt45">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <span class="has-error">{{ message }}</span>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 		<form role="form" method="post" action="/login" class="lrg-form col-md-12">
 			<input type="text" class="form-control xli itr" name="username" id="username" placeholder="username">
             <input type="password" class="form-control xli ibr" name="password" id="password" placeholder="password">

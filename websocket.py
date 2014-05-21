@@ -60,7 +60,7 @@ def login():
         uname = request.form['username']
         pword = request.form['password']
 
-        use = Users.select().wher(uname == Users.username, pword == Users.password)
+        use = Users.select().where(uname == Users.username, pword == Users.password)
 
         if use:
             session['username'] = uname
@@ -74,8 +74,16 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        pass
+        user = Users.create(username=request.form['username'],
+                            email=request.form['email'],
+                            password=request.form['password'],
+                            date_joined=datetime.datetime.now())
+        if user:
+            session['username'] = user.username
+            session['userid'] = user.id
 
+            return redirect(url_for('index'))
+        
     return render_template('register.html')
 
 #auto open close db connections
