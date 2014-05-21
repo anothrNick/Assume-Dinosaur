@@ -5,7 +5,7 @@
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 {% for message in messages %}
-                    <span class="has-error">{{ message }}</span>
+                    <div class="has-error" style="text-align:center;color:#CC0000">{{ message }}</div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
